@@ -457,7 +457,7 @@ fn define_all_allocs(tcx: TyCtxt<'_>, module: &mut dyn Module, cx: &mut Constant
                 ("", section_name.as_str())
             };
             // FIXME pass correct section flags on Mach-O
-            data.set_segment_section(segment_name, section_name, 0);
+            data.set_custom_section(section_name);
         }
 
         let bytes = alloc.inspect_with_uninit_and_ptr_outside_interpreter(0..alloc.len()).to_vec();

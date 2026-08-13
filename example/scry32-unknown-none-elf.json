@@ -1,0 +1,26 @@
+{
+  "arch": "riscv32",
+  "llvm-target": "scry32-unknown-none-elf",
+  "vendor": "scry",
+  "os": "none",
+  "atomic-cas": false,
+  "singlethread": true,
+  "cpu": "generic-scry",
+  "crt-objects-fallback": "false",
+  "data-layout": "e-m:e-p:32:32-i64:64-n8:16:32",
+  "eh-frame-header": false,
+  "emit-debug-gdb-scripts": false,
+  "features": "",
+  "linker": "rust-lld",
+  "linker-flavor": "gnu-lld",
+  "llvm-abiname": "ilp32",
+  "metadata": {
+    "description": "Bare Scry ISA",
+    "host_tools": false,
+    "std": false,
+    "tier": 3
+  },
+  "panic-strategy": "abort",
+  "relocation-model": "static",
+  "target-pointer-width": 32
+}
