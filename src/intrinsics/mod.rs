@@ -16,6 +16,7 @@ mod llvm;
 mod llvm_aarch64;
 mod llvm_x86;
 mod simd;
+mod volatile;
 
 use cranelift_codegen::ir::{
     AtomicRmwOp, BlockArg, ExceptionTableData, ExceptionTableItem, ExceptionTag,
@@ -799,19 +800,20 @@ fn codegen_regular_intrinsic_call<'tcx>(
 
         sym::volatile_load | sym::unaligned_volatile_load => {
             intrinsic_args!(fx, args => (ptr); intrinsic);
-
-            // Cranelift treats loads as volatile by default
-            // FIXME correctly handle unaligned_volatile_load
-            let inner_layout = fx.layout_of(ptr.layout().ty.builtin_deref(true).unwrap());
-            let val = CValue::by_ref(Pointer::new(ptr.load_scalar(fx)), inner_layout);
-            ret.write_cvalue(fx, val);
+            let ptr = ptr.load_scalar(fx);
+            let aligned = intrinsic == sym::volatile_load;
+            volatile::codegen_volatile_load(fx, ptr, ret, aligned);
         }
-        sym::volatile_store | sym::unaligned_volatile_store | sym::nontemporal_store => {
+        sym::volatile_store | sym::unaligned_volatile_store => {
+            intrinsic_args!(fx, args => (ptr, val); intrinsic);
+            let ptr = ptr.load_scalar(fx);
+            let aligned = intrinsic == sym::volatile_store;
+            volatile::codegen_volatile_store(fx, ptr, val, aligned);
+        }
+        sym::nontemporal_store => {
             intrinsic_args!(fx, args => (ptr, val); intrinsic);
             let ptr = ptr.load_scalar(fx);
 
-            // Cranelift treats stores as volatile by default
-            // FIXME correctly handle unaligned_volatile_store
             // FIXME actually do nontemporal stores if requested (but do not just emit MOVNT on x86;
             // see the LLVM backend for details)
             let dest = CPlace::for_ptr(Pointer::new(ptr), val.layout());
