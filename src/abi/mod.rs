@@ -25,6 +25,7 @@ use rustc_target::callconv::{FnAbi, PassMode};
 use rustc_target::spec::Arch;
 use smallvec::{SmallVec, smallvec};
 
+pub(crate) use self::pass_mode::declares_all_extensions;
 use self::pass_mode::*;
 pub(crate) use self::returning::codegen_return;
 use crate::base::codegen_unwind_terminate;

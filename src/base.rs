@@ -1121,10 +1121,22 @@ fn codegen_panic_inner<'tcx>(
 
     let symbol_name = fx.tcx.symbol_name(instance).name;
 
-    let sig = Signature {
-        params: args.iter().map(|&arg| AbiParam::new(fx.bcx.func.dfg.value_type(arg))).collect(),
-        returns: vec![],
-        call_conv: fx.target_config.default_call_conv,
+    let sig = if crate::abi::declares_all_extensions(fx.tcx) {
+        // The panic function's own signature, with the extensions every other
+        // declaration and its definition carry on such targets.
+        let sig =
+            crate::abi::get_function_sig(fx.tcx, fx.target_config.default_call_conv, instance);
+        assert_eq!(sig.params.len(), args.len(), "arguments of {symbol_name}");
+        sig
+    } else {
+        Signature {
+            params: args
+                .iter()
+                .map(|&arg| AbiParam::new(fx.bcx.func.dfg.value_type(arg)))
+                .collect(),
+            returns: vec![],
+            call_conv: fx.target_config.default_call_conv,
+        }
     };
     let func_id = fx.module.declare_function(symbol_name, Linkage::Import, &sig).unwrap();
     let func_ref = fx.module.declare_func_in_func(func_id, fx.bcx.func);

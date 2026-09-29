@@ -65,7 +65,7 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 [[package]]
 name = "cranelift-assembler-x64"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-assembler-x64-meta",
 ]
@@ -73,7 +73,7 @@ dependencies = [
 [[package]]
 name = "cranelift-assembler-x64-meta"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-srcgen",
 ]
@@ -81,7 +81,7 @@ dependencies = [
 [[package]]
 name = "cranelift-bforest"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-entity",
  "wasmtime-internal-core",
@@ -90,7 +90,7 @@ dependencies = [
 [[package]]
 name = "cranelift-bitset"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "wasmtime-internal-core",
 ]
@@ -98,7 +98,7 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "bumpalo",
  "byteorder",
@@ -128,7 +128,7 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen-meta"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-assembler-x64-meta",
  "cranelift-codegen-shared",
@@ -139,12 +139,12 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen-shared"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 
 [[package]]
 name = "cranelift-control"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "arbitrary",
 ]
@@ -152,7 +152,7 @@ dependencies = [
 [[package]]
 name = "cranelift-entity"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-bitset",
  "wasmtime-internal-core",
@@ -161,7 +161,7 @@ dependencies = [
 [[package]]
 name = "cranelift-frontend"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-codegen",
  "hashbrown 0.17.0",
@@ -173,12 +173,12 @@ dependencies = [
 [[package]]
 name = "cranelift-isle"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 
 [[package]]
 name = "cranelift-jit"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "anyhow",
  "cranelift-codegen",
@@ -198,7 +198,7 @@ dependencies = [
 [[package]]
 name = "cranelift-module"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "anyhow",
  "cranelift-codegen",
@@ -208,7 +208,7 @@ dependencies = [
 [[package]]
 name = "cranelift-native"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "cranelift-codegen",
  "libc",
@@ -218,7 +218,7 @@ dependencies = [
 [[package]]
 name = "cranelift-object"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "anyhow",
  "cranelift-codegen",
@@ -232,7 +232,7 @@ dependencies = [
 [[package]]
 name = "cranelift-srcgen"
 version = "0.136.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 
 [[package]]
 name = "crc32fast"
@@ -739,7 +739,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wasmtime-internal-core"
 version = "49.0.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "hashbrown 0.17.0",
  "libm",
@@ -748,7 +748,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-internal-jit-icache-coherence"
 version = "49.0.0-dev"
-source = "git+https://github.com/Scry-arch/rust-wasmtime.git#cfd59dc8e14ebdf35e20a303b161247d96434324"
+source = "git+https://github.com/Scry-arch/rust-wasmtime.git#faad34bff96e44f12d61949f8fdfcf900c05881c"
 dependencies = [
  "libc",
  "wasmtime-internal-core",

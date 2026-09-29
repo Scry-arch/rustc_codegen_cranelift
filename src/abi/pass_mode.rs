@@ -1,7 +1,7 @@
 //! Argument passing
 
 use cranelift_codegen::ir::ArgumentPurpose;
-use rustc_abi::{Reg, RegKind};
+use rustc_abi::{Primitive, Reg, RegKind};
 use rustc_target::callconv::{
     ArgAbi, ArgAttributes, ArgExtension as RustcArgExtension, CastTarget, PassMode,
 };
@@ -41,6 +41,59 @@ fn apply_attrs_to_abi_param(param: AbiParam, arg_attrs: ArgAttributes) -> AbiPar
         RustcArgExtension::Zext => param.uext(),
         RustcArgExtension::Sext => param.sext(),
     }
+}
+
+/// Whether the target is Scry.
+///
+/// Scry operands carry their signedness, and its Cranelift backend takes the
+/// signedness of a parameter or return value from its `sext`/`uext`
+/// attribute. It treats a value without one as unsigned, so a signed value
+/// passed without `sext` is compared, shifted and extended as unsigned. rustc
+/// only asks for an extension where the target's calling convention needs
+/// one, usually for integers narrower than a register, so on Scry
+/// [`scalar_abi_param`] and [`pointer_abi_param`] declare the rest as well.
+pub(crate) fn declares_all_extensions(tcx: TyCtxt<'_>) -> bool {
+    // `target_lexicon` knows Scry; `rustc_target` only sees the stand-in
+    // architecture of the target spec.
+    tcx.sess
+        .target
+        .llvm_target
+        .split('-')
+        .next()
+        .and_then(|arch| arch.parse::<target_lexicon::Architecture>().ok())
+        .is_some_and(|arch| matches!(arch, target_lexicon::Architecture::Scry(_)))
+}
+
+/// The parameter or return value for a value of `scalar`'s type.
+///
+/// Where rustc asked for an extension, that is used. Otherwise, on targets
+/// where [`declares_all_extensions`], an integer declares the extension its
+/// signedness implies, and `bool`, `char` and pointers, which are unsigned,
+/// declare `uext`. Floats never have one.
+fn scalar_abi_param(
+    tcx: TyCtxt<'_>,
+    param: AbiParam,
+    scalar: Scalar,
+    arg_attrs: ArgAttributes,
+) -> AbiParam {
+    if !matches!(arg_attrs.arg_ext, RustcArgExtension::None) || !declares_all_extensions(tcx) {
+        return apply_attrs_to_abi_param(param, arg_attrs);
+    }
+    match scalar.primitive() {
+        Primitive::Int(_, true) => param.sext(),
+        Primitive::Int(_, false) | Primitive::Pointer(_) => param.uext(),
+        Primitive::Float(_) => param,
+    }
+}
+
+/// A parameter holding a pointer (or the `usize`/vtable-pointer metadata of a
+/// wide one) to a value passed by reference. Like [`scalar_abi_param`], it
+/// declares `uext` on targets where [`declares_all_extensions`].
+fn pointer_abi_param(tcx: TyCtxt<'_>, param: AbiParam, arg_attrs: ArgAttributes) -> AbiParam {
+    if !matches!(arg_attrs.arg_ext, RustcArgExtension::None) || !declares_all_extensions(tcx) {
+        return apply_attrs_to_abi_param(param, arg_attrs);
+    }
+    param.uext()
 }
 
 fn cast_target_to_abi_params(cast: &CastTarget) -> SmallVec<[(Size, AbiParam); 2]> {
@@ -101,8 +154,10 @@ impl<'tcx> ArgAbiExt<'tcx> for ArgAbi<'tcx, Ty<'tcx>> {
         match self.mode {
             PassMode::Ignore => smallvec![],
             PassMode::Direct(attrs) => match self.layout.backend_repr {
-                BackendRepr::Scalar(scalar) => smallvec![apply_attrs_to_abi_param(
+                BackendRepr::Scalar(scalar) => smallvec![scalar_abi_param(
+                    tcx,
                     AbiParam::new(scalar_to_clif_type(tcx, scalar)),
+                    scalar,
                     attrs
                 )],
                 BackendRepr::SimdVector { .. } => {
@@ -113,11 +168,11 @@ impl<'tcx> ArgAbiExt<'tcx> for ArgAbi<'tcx, Ty<'tcx>> {
             },
             PassMode::Pair(attrs_a, attrs_b) => match self.layout.backend_repr {
                 BackendRepr::ScalarPair { a, b, b_offset: _ } => {
-                    let a = scalar_to_clif_type(tcx, a);
-                    let b = scalar_to_clif_type(tcx, b);
+                    let a_ty = scalar_to_clif_type(tcx, a);
+                    let b_ty = scalar_to_clif_type(tcx, b);
                     smallvec![
-                        apply_attrs_to_abi_param(AbiParam::new(a), attrs_a),
-                        apply_attrs_to_abi_param(AbiParam::new(b), attrs_b),
+                        scalar_abi_param(tcx, AbiParam::new(a_ty), a, attrs_a),
+                        scalar_abi_param(tcx, AbiParam::new(b_ty), b, attrs_b),
                     ]
                 }
                 _ => unreachable!("{:?}", self.layout.backend_repr),
@@ -136,14 +191,14 @@ impl<'tcx> ArgAbiExt<'tcx> for ArgAbi<'tcx, Ty<'tcx>> {
                         attrs
                     )]
                 } else {
-                    smallvec![apply_attrs_to_abi_param(AbiParam::new(pointer_ty(tcx)), attrs)]
+                    smallvec![pointer_abi_param(tcx, AbiParam::new(pointer_ty(tcx)), attrs)]
                 }
             }
             PassMode::Indirect { attrs, meta_attrs: Some(meta_attrs), on_stack } => {
                 assert!(!on_stack);
                 smallvec![
-                    apply_attrs_to_abi_param(AbiParam::new(pointer_ty(tcx)), attrs),
-                    apply_attrs_to_abi_param(AbiParam::new(pointer_ty(tcx)), meta_attrs),
+                    pointer_abi_param(tcx, AbiParam::new(pointer_ty(tcx)), attrs),
+                    pointer_abi_param(tcx, AbiParam::new(pointer_ty(tcx)), meta_attrs),
                 ]
             }
         }
@@ -155,8 +210,10 @@ impl<'tcx> ArgAbiExt<'tcx> for ArgAbi<'tcx, Ty<'tcx>> {
             PassMode::Direct(attrs) => match self.layout.backend_repr {
                 BackendRepr::Scalar(scalar) => (
                     None,
-                    vec![apply_attrs_to_abi_param(
+                    vec![scalar_abi_param(
+                        tcx,
                         AbiParam::new(scalar_to_clif_type(tcx, scalar)),
+                        scalar,
                         attrs,
                     )],
                 ),
@@ -168,13 +225,13 @@ impl<'tcx> ArgAbiExt<'tcx> for ArgAbi<'tcx, Ty<'tcx>> {
             },
             PassMode::Pair(attrs_a, attrs_b) => match self.layout.backend_repr {
                 BackendRepr::ScalarPair { a, b, b_offset: _ } => {
-                    let a = scalar_to_clif_type(tcx, a);
-                    let b = scalar_to_clif_type(tcx, b);
+                    let a_ty = scalar_to_clif_type(tcx, a);
+                    let b_ty = scalar_to_clif_type(tcx, b);
                     (
                         None,
                         vec![
-                            apply_attrs_to_abi_param(AbiParam::new(a), attrs_a),
-                            apply_attrs_to_abi_param(AbiParam::new(b), attrs_b),
+                            scalar_abi_param(tcx, AbiParam::new(a_ty), a, attrs_a),
+                            scalar_abi_param(tcx, AbiParam::new(b_ty), b, attrs_b),
                         ],
                     )
                 }
